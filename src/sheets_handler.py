@@ -1,7 +1,10 @@
-import gspread
+from typing import Any, List, Optional
+
 from google.oauth2.service_account import Credentials
-from typing import List, Any
+import gspread
+from gspread.utils import ValueInputOption
 from loguru import logger
+
 from config.settings import SPREADSHEET_ID, SERVICE_ACCOUNT_PATH, WORKSHEET_NAME
 
 
@@ -11,7 +14,11 @@ class GoogleSheetsHandler:
     認証、既存タイトルの取得、新規データの追記を担当する。
     """
 
-    def __init__(self, spreadsheet_id: str = None, service_account_path: str = None):
+    def __init__(
+        self,
+        spreadsheet_id: Optional[str] = None,
+        service_account_path: Optional[str] = None,
+    ):
         """初期化と認証を行う。
 
         :param spreadsheet_id: 対象スプレッドシートのID
@@ -28,7 +35,7 @@ class GoogleSheetsHandler:
         try:
             logger.info("GoogleSheetsHandler: 認証処理を開始します。")
             self.credentials = Credentials.from_service_account_file(
-                service_account_path, scopes=self.scopes
+                self.service_account_path, scopes=self.scopes
             )
             self.gc = gspread.authorize(self.credentials)
             self.spreadsheet = self.gc.open_by_key(self.spreadsheet_id)
@@ -47,10 +54,10 @@ class GoogleSheetsHandler:
         """
         logger.info("Method Start: get_existing_titles")
         try:
-            # C1はヘッダーなので、C2以降を取得
-            ROW_START = 3
-            COLUMN_C = 2
-            titles: List[str] = self.worksheet.col_values(COLUMN_C, ROW_START)
+            COLUMN_C = 3  # C列がタイトル列
+            all_titles_raw = self.worksheet.col_values(COLUMN_C)
+            all_titles: List[str] = [str(t) for t in all_titles_raw]
+            titles = all_titles[2:] if len(all_titles) > 2 else []  # ヘッダーを除外
 
             logger.info(f"既存タイトルを {len(titles)} 件取得しました。")
             return titles
@@ -83,7 +90,9 @@ class GoogleSheetsHandler:
             logger.info(f"書き込み範囲: {target_range}")
 
             self.worksheet.update(
-                target_range, job_rows, value_input_option="USER_ENTERED"
+                values=job_rows,
+                range_name=target_range,
+                value_input_option=ValueInputOption.user_entered,
             )
 
             logger.success(f"{next_row}行目から{end_row}行目のB-U列に書き込み完了")

@@ -1,15 +1,15 @@
-import sys
 import os
+import sys
 
-# プロジェクトのルートディレクトリをパスに追加
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+from loguru import logger
+
+from config import settings
 from src.models import JobEntity
+from src.processor import Processor
 from src.scraper import Scraper
 from src.sheets_handler import GoogleSheetsHandler
-from config import settings
-from src.processor import Processor
-from loguru import logger
 
 
 def main():
@@ -22,7 +22,7 @@ def main():
 
     # 対象サイトからスクレイピング結果を取得
     job_datas = []
-    for p in range(settings.START_PAGE, settings.MAX_PAGES_TO_SCRAPE):
+    for p in range(settings.START_PAGE, settings.MAX_PAGES_TO_SCRAPE + 1):
         try:
             html = scraper.fetch_list_page_html(p)
             job_datas.extend(processor.parse_list_to_datas(html))
@@ -47,19 +47,25 @@ def main():
     for job in jobs:
         try:
             detail_html = scraper.fetch_detail_page_html(job.url)
-            is_target = processor.check_keywords_in_detail(detail_html, settings.KEYWORDS)
+            is_target = processor.check_keywords_in_detail(
+                detail_html, settings.KEYWORDS
+            )
             # 検索対象文字が含まれるかの判定結果をセット
             job.is_target = is_target
         except Exception as e:
-            logger.warning(f"詳細ページの解析に失敗したためスキップします ({job.url}): {e}")
+            logger.warning(
+                f"詳細ページの解析に失敗したためスキップします ({job.url}): {e}"
+            )
             job.is_target = False
 
     # JobEntityからスプレッドシート用の行データに変換して追加処理実行
     jobs_list = [job.to_spreadsheet_row() for job in jobs if job.is_target]
-    
+
     if jobs_list:
         handler.add_new_jobs(jobs_list)
-        logger.success(f"{len(jobs_list)} 件の新規案件をスプレッドシートに追加しました。")
+        logger.success(
+            f"{len(jobs_list)} 件の新規案件をスプレッドシートに追加しました。"
+        )
     else:
         logger.info("追加対象の新規案件はありませんでした。")
 

@@ -1,0 +1,14 @@
+[tool.mypy]
+# 仮想環境のパスを明示的に指定する
+python_executable = ".venv/bin/python"
+# または
+mypy_path = "."
+
+# 型定義がないライブラリを無視する設定を一括で入れる
+ignore_missing_imports = true
+explicit_package_bases = true
+
+# 特定のインポートエラー（requestsなど）を個別に黙らせる
+[[tool.mypy.overrides]]
+module = "requests.*"
+ignore_missing_imports = true
