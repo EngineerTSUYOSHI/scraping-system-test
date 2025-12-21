@@ -1,7 +1,8 @@
-from bs4 import BeautifulSoup
 from datetime import datetime
+from typing import Any, Dict, List
+
+from bs4 import BeautifulSoup
 from loguru import logger
-from typing import List, Dict, Any
 
 
 class Processor:
