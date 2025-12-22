@@ -1,3 +1,4 @@
+altgraph==0.17.5
 beautifulsoup4==4.14.3
 black==25.12.0
 cachetools==6.2.4
@@ -10,6 +11,7 @@ gspread==6.2.1
 idna==3.11
 librt==0.7.4
 loguru==0.7.3
+macholib==1.16.4
 mypy==1.19.1
 mypy_extensions==1.1.0
 oauthlib==3.3.1
@@ -18,11 +20,14 @@ pathspec==0.12.1
 platformdirs==4.5.1
 pyasn1==0.6.1
 pyasn1_modules==0.4.2
+pyinstaller==6.17.0
+pyinstaller-hooks-contrib==2025.10
 python-dotenv==1.2.1
 pytokens==0.3.0
 requests==2.32.5
 requests-oauthlib==2.0.0
 rsa==4.9.1
+setuptools==80.9.0
 soupsieve==2.8.1
 types-requests==2.32.4.20250913
 typing_extensions==4.15.0
