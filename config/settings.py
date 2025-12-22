@@ -1,12 +1,20 @@
 import os
+import sys
 from pathlib import Path
-
 from dotenv import load_dotenv
 
-load_dotenv()
+def get_base_dir() -> Path:
+    if getattr(sys, 'frozen', False):
+        # 実行ファイルとして動いている場合（dist/main）
+        return Path(sys.executable).parent
+    else:
+        # 通常のPythonスクリプトとして動いている場合
+        return Path(__file__).resolve().parent.parent
 
-# プロジェクトのルートディレクトリを取得
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = get_base_dir()
+
+# .envファイルのパスを明示して読み込む
+load_dotenv(BASE_DIR / ".env")
 
 # Google API 設定
 SPREADSHEET_ID = os.getenv("SPREADSHEET_ID", "your-spreadsheet-id-here")
