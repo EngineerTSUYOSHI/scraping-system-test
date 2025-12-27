@@ -4,13 +4,14 @@ import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from loguru import logger
-
+from config.logger_config import setup_logger
 from config import settings
 from src.models import JobEntity
 from src.processor import Processor
 from src.scraper import Scraper
 from src.sheets_handler import GoogleSheetsHandler
 
+setup_logger()
 
 def main():
     handler = GoogleSheetsHandler()
